@@ -1,20 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cat:*)",
-      "Read(//c/Users/JonSteiner/.claude/**)",
-      "Read(//c/Users/JonSteiner/**)",
-      "Bash(mkdir:*)",
-      "Bash(mv:*)",
-      "WebSearch",
-      "mcp__playwright__browser_navigate",
-      "Bash(tree:*)",
-      "Bash(md-tree:*)",
-      "Bash(npm install:*)",
-      "SlashCommand(/BMad:agents:po:*)",
       "Bash(test:*)",
-      "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(python -c \"import yaml; yaml.safe_load(open(''Landing Pages Automation/claude-session-config.yaml'', ''r'', encoding=''utf-8''))\")",
+      "Bash(node:*)",
+      "Bash(echo \"Current TAVILY_API_KEY: $TAVILY_API_KEY:0:10...\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(export AIRTABLE_API_KEY='pat3thQIxGqQt3iRp.a9512872128a4efbddc05ccb1be649e6a72f725d2df9aca10994b56446648208')",
+      "Bash(export AIRTABLE_BASE_ID='appuQovLbKR3llD82')",
+      "Bash(npm install)",
+      "Bash(npx tsc:*)",
+      "Bash(timeout 15 npm run dev)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
