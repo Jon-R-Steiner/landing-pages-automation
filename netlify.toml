@@ -1,21 +1,21 @@
 # Netlify Configuration for Landing Pages Automation
 
 [build]
-  # Build command - install deps at root first, then build
-  command = "cd ../.. && npm install && npm run build"
+  # Build command
+  command = "npm install && npm run build"
 
-  # Publish directory - Next.js build output
-  publish = ".next"
+  # Publish directory - Next.js build output (relative to root)
+  publish = "apps/frontend/.next"
 
-  # Functions directory
-  functions = "netlify/functions"
-
-  # Base directory - root of Next.js app
-  base = "apps/frontend"
+  # Functions directory (relative to root)
+  functions = "apps/frontend/netlify/functions"
 
 [build.environment]
   # Node version
   NODE_VERSION = "20"
+
+  # Tell Next.js plugin where the app is
+  NEXT_USE_NETLIFY_EDGE = "false"
 
 # Headers for security and performance
 [[headers]]
@@ -40,19 +40,20 @@
   # External node modules (don't bundle)
   external_node_modules = ["@anthropic-ai/sdk"]
 
+  # Directory for functions (must match above)
+  directory = "apps/frontend/netlify/functions"
+
+# Disable Next.js plugin - handle manually
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+  [plugins.inputs]
+  # Point to Next.js app root
+  distDir = "apps/frontend"
+
 # Development settings
 [dev]
   command = "npm run dev"
   port = 3000
   targetPort = 3000
   framework = "#custom"
-
-# Environment-specific settings
-[context.production]
-  command = "cd ../.. && npm install && npm run build"
-
-[context.deploy-preview]
-  command = "cd ../.. && npm install && npm run build"
-
-[context.branch-deploy]
-  command = "cd ../.. && npm install && npm run build"
