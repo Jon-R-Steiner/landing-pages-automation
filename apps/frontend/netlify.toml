@@ -1,7 +1,7 @@
 # Netlify Configuration - placed in Next.js app root for auto-detection
 
 [build]
-  base = ""
+  base = "apps/frontend"
   command = "npm run build"
   publish = ".next"
 
