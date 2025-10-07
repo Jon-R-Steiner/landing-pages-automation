@@ -4,11 +4,33 @@
 # Dependencies
 node_modules/
 
+# Build artifacts
+.next/
+out/
+dist/
+build/
+
+# Cache
+.turbo/
+.cache/
+
 # OS files
 .DS_Store
+Thumbs.db
 
 # Logs
 *.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# Testing
+coverage/
 
 # Claude Code local files
 .claude/local-*
+
+# Netlify
+.netlify/

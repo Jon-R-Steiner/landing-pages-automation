@@ -1,0 +1,68 @@
+# Netlify Configuration for Landing Pages Automation
+
+[build]
+  # Build command
+  command = "npm run build"
+
+  # Publish directory (Next.js output)
+  publish = "apps/frontend/.next"
+
+  # Functions directory
+  functions = "apps/frontend/netlify/functions"
+
+  # Base directory for monorepo
+  base = "/"
+
+[build.environment]
+  # Node version
+  NODE_VERSION = "20"
+
+  # Enable Next.js standalone output
+  NEXT_PRIVATE_STANDALONE = "true"
+
+# Redirect rules for Next.js App Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Function settings
+[functions]
+  # Node.js version for functions
+  node_bundler = "esbuild"
+
+  # External node modules (don't bundle)
+  external_node_modules = ["@anthropic-ai/sdk"]
+
+# Development settings
+[dev]
+  command = "npm run dev"
+  port = 3000
+  targetPort = 3000
+  framework = "#custom"
+
+# Environment-specific settings
+[context.production]
+  command = "npm run build"
+
+[context.deploy-preview]
+  command = "npm run build"
+
+[context.branch-deploy]
+  command = "npm run build"
