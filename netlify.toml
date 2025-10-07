@@ -1,9 +1,8 @@
-# Netlify Configuration - Next.js 15.5 with App Router
+# Netlify Configuration - Next.js 15.5 with App Router (monorepo)
 
 [build]
-  base = "apps/frontend"
-  command = "npm run build"
-  publish = ".next"
+  command = "npm run build --workspace=apps/frontend"
+  publish = "apps/frontend/.next"
 
 [build.environment]
   NODE_VERSION = "20"
@@ -11,6 +10,9 @@
 # Next.js plugin for automatic serverless function conversion
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+  [plugins.inputs]
+    packagePath = "apps/frontend"
 
 # Headers for security and performance
 [[headers]]
