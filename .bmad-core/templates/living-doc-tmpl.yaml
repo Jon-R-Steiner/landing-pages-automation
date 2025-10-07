@@ -1,0 +1,267 @@
+# Living Documentation Template
+#
+# Purpose: Enables documentation-as-code pattern with two-tier context management
+# Usage: Phase 1 agents use this template to create evolving documentation that separates
+#        planning (Prescriptive), outcomes (Reflective), and version history (Evolution)
+#
+# Two-Tier Context Strategy:
+#   - Active Tier: Current version + last 3 versions (always loaded)
+#   - Archive Tier: Full history (loaded only when keywords detected)
+#
+# Archive Trigger Keywords: "why was this built", "history", "past errors", "previous versions"
+
+template:
+  id: living-documentation-template-v1
+  name: Living Documentation (Prescriptive + Reflective + Evolution)
+  version: 1.0
+  output:
+    format: markdown
+    filename: "docs/living-doc-{{component_name}}-{{version}}.md"
+    title: "Living Documentation: {{component_name}}"
+
+workflow:
+  mode: non-interactive
+  tiers:
+    active:
+      description: "Current version + last 3 versions - always loaded into context"
+      retention: 4
+    archive:
+      description: "Full history - loaded only when archive keywords detected"
+      keywords:
+        - "why was this built"
+        - "history"
+        - "past errors"
+        - "previous versions"
+
+sections:
+  # ============================================
+  # SECTION 1: PRESCRIPTIVE (Before Implementation)
+  # ============================================
+  - id: prescriptive
+    title: "1. Prescriptive (Before Implementation)"
+    description: "Written BEFORE building - captures intent, decisions, and plans"
+    sections:
+      - id: prescriptive-header
+        content: |
+          **Component:** {{component_name}}
+          **Version:** {{version}}
+          **Date:** {{date}}
+          **Author:** {{author_agent}} ({{author_model}})
+          **Status:** {{status}}
+
+      - id: intent-purpose
+        title: "1.1 Intent & Purpose"
+        description: "Why are we building this? What problem does it solve?"
+        template: |
+          **Problem Statement:**
+          {{problem_statement}}
+
+          **Solution Approach:**
+          {{solution_approach}}
+
+          **Success Criteria:**
+          {{success_criteria}}
+
+          **Out of Scope:**
+          {{out_of_scope}}
+
+      - id: architectural-decisions
+        title: "1.2 Architectural Decisions"
+        description: "Key technical choices made and their rationale"
+        repeatable: true
+        type: numbered-list
+        template: |
+          **Decision {{decision_number}}: {{decision_title}}**
+          - **Context:** {{context}}
+          - **Options Considered:** {{options}}
+          - **Chosen Approach:** {{chosen_approach}}
+          - **Rationale:** {{rationale}}
+          - **Trade-offs:** {{tradeoffs}}
+          - **Reversibility:** {{reversibility}}
+
+      - id: implementation-plan
+        title: "1.3 Implementation Plan"
+        description: "How we plan to build this"
+        sections:
+          - id: build-stages
+            title: "Build Stages"
+            type: numbered-list
+            template: "{{stage}}: {{description}}"
+          - id: dependencies
+            title: "Dependencies"
+            type: bullet-list
+            template: "- {{dependency}}: {{reason}}"
+          - id: risks-mitigation
+            title: "Risks & Mitigation"
+            repeatable: true
+            type: bullet-list
+            template: "- **Risk:** {{risk}} → **Mitigation:** {{mitigation}}"
+
+      - id: expected-outcomes
+        title: "1.4 Expected Outcomes"
+        description: "What we expect to happen when we build this"
+        template: |
+          **Expected Performance:**
+          {{expected_performance}}
+
+          **Expected User Experience:**
+          {{expected_ux}}
+
+          **Expected Challenges:**
+          {{expected_challenges}}
+
+  # ============================================
+  # SECTION 2: REFLECTIVE (After Testing)
+  # ============================================
+  - id: reflective
+    title: "2. Reflective (After Testing)"
+    description: "Written AFTER testing - captures reality, learnings, and adjustments"
+    sections:
+      - id: reflective-header
+        content: |
+          **Testing Completed:** {{testing_date}}
+          **Tester:** {{tester_agent}} ({{tester_model}})
+
+      - id: actual-vs-expected
+        title: "2.1 Actual vs. Expected"
+        description: "How did reality compare to our plans?"
+        sections:
+          - id: what-matched
+            title: "What Matched Expectations"
+            type: bullet-list
+            template: "- {{aspect}}: {{details}}"
+          - id: what-surprised
+            title: "What Surprised Us"
+            repeatable: true
+            type: bullet-list
+            template: "- **Surprise:** {{surprise}} → **Impact:** {{impact}}"
+          - id: what-changed
+            title: "What We Changed From Original Plan"
+            repeatable: true
+            type: bullet-list
+            template: "- **Original:** {{original}} → **Actual:** {{actual}} → **Reason:** {{reason}}"
+
+      - id: lessons-learned
+        title: "2.2 Lessons Learned"
+        description: "What we learned that we didn't know before"
+        sections:
+          - id: technical-lessons
+            title: "Technical Insights"
+            type: bullet-list
+            template: "- {{insight}}: {{application}}"
+          - id: process-lessons
+            title: "Process Improvements"
+            type: bullet-list
+            template: "- {{improvement}}: {{benefit}}"
+          - id: gotchas
+            title: "Gotchas & Edge Cases"
+            repeatable: true
+            type: bullet-list
+            template: "- **Issue:** {{issue}} → **Solution:** {{solution}}"
+
+      - id: quality-outcomes
+        title: "2.3 Quality Outcomes"
+        description: "Actual performance and quality measurements"
+        template: |
+          **Performance Metrics:**
+          {{performance_metrics}}
+
+          **Test Results:**
+          {{test_results}}
+
+          **Known Issues:**
+          {{known_issues}}
+
+          **Technical Debt Created:**
+          {{technical_debt}}
+
+      - id: recommendations
+        title: "2.4 Recommendations for Next Time"
+        description: "What should future developers do differently?"
+        sections:
+          - id: do-again
+            title: "Do Again (What Worked)"
+            type: bullet-list
+            template: "- {{practice}}: {{why_it_worked}}"
+          - id: do-differently
+            title: "Do Differently (What Didn't Work)"
+            type: bullet-list
+            template: "- {{practice}}: {{better_approach}}"
+          - id: avoid
+            title: "Avoid (What Failed)"
+            type: bullet-list
+            template: "- {{mistake}}: {{consequence}}"
+
+  # ============================================
+  # SECTION 3: EVOLUTION HISTORY
+  # ============================================
+  - id: evolution-history
+    title: "3. Evolution History"
+    description: "Tracks how this component changed over time and why"
+    sections:
+      - id: version-history
+        title: "3.1 Version History"
+        description: "Chronological record of all versions"
+        repeatable: true
+        type: table
+        headers: ["Version", "Date", "Author", "Changes", "Rationale"]
+        template: "| {{version}} | {{date}} | {{author}} | {{changes}} | {{rationale}} |"
+
+      - id: architectural-evolution
+        title: "3.2 Architectural Evolution"
+        description: "How the architecture changed and why"
+        repeatable: true
+        type: numbered-list
+        template: |
+          **{{version}}: {{change_title}}**
+          - **Previous Approach:** {{old_approach}}
+          - **New Approach:** {{new_approach}}
+          - **Driver for Change:** {{driver}}
+          - **Migration Path:** {{migration}}
+
+      - id: pattern-shifts
+        title: "3.3 Pattern Shifts"
+        description: "Major pattern or paradigm changes"
+        repeatable: true
+        type: bullet-list
+        template: "- **{{version}}:** Shifted from {{old_pattern}} to {{new_pattern}} because {{reason}}"
+
+      - id: lessons-timeline
+        title: "3.4 Cumulative Lessons"
+        description: "Key learnings accumulated across all versions"
+        type: bullet-list
+        template: "- {{lesson}} (learned in {{version}})"
+
+  # ============================================
+  # METADATA & FOOTER
+  # ============================================
+  - id: metadata
+    title: "Metadata"
+    sections:
+      - id: context-tier
+        title: "Context Management"
+        template: |
+          **Tier Status:** {{tier_status}}
+          - **Active Tier:** Versions {{active_versions}}
+          - **Archive Tier:** Versions {{archive_versions}}
+
+      - id: related-docs
+        title: "Related Documentation"
+        type: bullet-list
+        template: "- [{{doc_title}}]({{doc_path}})"
+
+      - id: keywords
+        title: "Archive Trigger Keywords"
+        content: |
+          This document is loaded into full archive mode when these keywords are detected:
+          - "why was this built"
+          - "history"
+          - "past errors"
+          - "previous versions"
+
+  - id: footer
+    content: |
+      ---
+
+      *Living Documentation Template v1.0 - Prescriptive + Reflective + Evolution*
+      *Generated using BMAD™ Documentation-as-Code Framework*
