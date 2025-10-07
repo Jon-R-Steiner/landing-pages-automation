@@ -29,20 +29,41 @@ export default function Step3TCPAConsent({
     };
 
     try {
-      // For now, only validate tcpaConsent (reCAPTCHA placeholder)
+      // Validate TCPA consent
       if (!formValues.tcpaConsent) {
         setErrors({ tcpaConsent: 'You must agree to receive communications' });
         return;
       }
 
-      // reCAPTCHA placeholder - will be implemented in Stage 4 when credentials are available
-      const recaptchaToken = 'placeholder-token';
-      updateFormData({ ...formValues, recaptchaToken });
-      setErrors({});
-
       setIsSubmitting(true);
-      await handleSubmit();
-      setIsSubmitting(false);
+
+      // Execute reCAPTCHA Enterprise
+      const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LdOtuErAAAAAD1Dg7n5UqezgTewr1369I1chAAE';
+
+      if (typeof window !== 'undefined' && (window as any).grecaptcha?.enterprise) {
+        await (window as any).grecaptcha.enterprise.ready(async () => {
+          try {
+            const token = await (window as any).grecaptcha.enterprise.execute(recaptchaSiteKey, {
+              action: 'SUBMIT_LEAD_FORM'
+            });
+
+            updateFormData({ ...formValues, recaptchaToken: token });
+            setErrors({});
+            await handleSubmit();
+          } catch (error) {
+            console.error('reCAPTCHA error:', error);
+            setErrors({ tcpaConsent: 'reCAPTCHA verification failed. Please try again.' });
+          } finally {
+            setIsSubmitting(false);
+          }
+        });
+      } else {
+        // Fallback if reCAPTCHA not loaded
+        console.warn('reCAPTCHA not available, using placeholder token');
+        updateFormData({ ...formValues, recaptchaToken: 'placeholder-token' });
+        await handleSubmit();
+        setIsSubmitting(false);
+      }
     } catch (error) {
       setIsSubmitting(false);
       if (error instanceof z.ZodError) {
@@ -99,14 +120,6 @@ export default function Step3TCPAConsent({
           </label>
         </div>
         {errors.tcpaConsent && <p className="mt-2 text-sm text-red-500">{errors.tcpaConsent}</p>}
-      </div>
-
-      {/* reCAPTCHA Placeholder */}
-      <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-        <p className="text-sm text-yellow-800">
-          <strong>Note:</strong> reCAPTCHA protection will be enabled when RECAPTCHA_SITE_KEY is
-          configured. This helps prevent spam submissions.
-        </p>
       </div>
 
       {/* Privacy Notice */}

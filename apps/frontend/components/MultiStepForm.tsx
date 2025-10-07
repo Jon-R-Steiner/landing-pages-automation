@@ -36,12 +36,31 @@ export default function MultiStepForm({ pageType, location }: MultiStepFormProps
 
   const handleSubmit = async () => {
     try {
-      // Stage 4: Will implement Netlify Function API call
-      console.log('Form submission:', formData);
-      alert('Thank you! We will contact you shortly.');
-    } catch (error) {
+      // Submit to Netlify Function
+      const response = await fetch('/.netlify/functions/submit-lead', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        alert(result.message || 'Thank you! We will contact you shortly.');
+        // Reset form after successful submission
+        setFormData({
+          projectType: pageType as any,
+          landingPageUrl: typeof window !== 'undefined' ? window.location.href : '',
+        });
+        setCurrentStep(1);
+      } else {
+        throw new Error(result.message || 'Submission failed');
+      }
+    } catch (error: any) {
       console.error('Form submission error:', error);
-      alert('An error occurred. Please try again.');
+      alert(error.message || 'An error occurred. Please try again.');
     }
   };
 

@@ -12,12 +12,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // GTM Container ID from environment variable
+  // Environment variables
   const gtmId = process.env.NEXT_PUBLIC_GTM_CONTAINER_ID;
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LdOtuErAAAAAD1Dg7n5UqezgTewr1369I1chAAE';
 
   return (
     <html lang="en">
       <head>
+        {/* Google reCAPTCHA Enterprise */}
+        <Script
+          src={`https://www.google.com/recaptcha/enterprise.js?render=${recaptchaSiteKey}`}
+          strategy="afterInteractive"
+        />
+
         {/* Google Tag Manager */}
         {gtmId && (
           <Script
