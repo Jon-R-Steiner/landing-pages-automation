@@ -25,6 +25,6 @@
 
 # Function settings
 [functions]
-  directory = "apps/frontend/netlify/functions"
+  directory = "netlify/functions"
   node_bundler = "esbuild"
   external_node_modules = ["@anthropic-ai/sdk"]
