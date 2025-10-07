@@ -286,7 +286,7 @@ checkpoint_triggers:
 workflow_reference:
   document: "docs/phase-1-build-stages.md"
   format: "BMAD workflow format"
-  stages: 6
+  total_stages: 6
   estimated_duration: "28-34 hours"
 
   # Stage Progression Logic
@@ -298,7 +298,7 @@ workflow_reference:
     skip_stages: false
 
   # Stage Definitions Reference
-  stages:
+  stage_definitions:
     - number: 1
       name: "Project Setup"
       duration: "3-4 hours"
