@@ -55,17 +55,17 @@ Go to: Site settings → Environment variables → Add variables
 
 ```bash
 # Airtable
-AIRTABLE_API_KEY=pat3thQIxGqQt3iRp.a9512872128a4efbddc05ccb1be649e6a72f725d2df9aca10994b56446648208
-AIRTABLE_BASE_ID=appuQovLbKR3llD82
+AIRTABLE_API_KEY=your_airtable_personal_access_token
+AIRTABLE_BASE_ID=your_airtable_base_id
 
 # reCAPTCHA Enterprise
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=6LdOtuErAAAAAD1Dg7n5UqezgTewr1369I1chAAE
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 
 # Claude API
-CLAUDE_API_KEY=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
+CLAUDE_API_KEY=your_claude_api_key
 
 # Make.com
-MAKE_API_KEY=701bf0d3-70ea-4079-890f-46d15f9e3824
+MAKE_API_KEY=your_make_api_key
 ```
 
 ### Optional Variables

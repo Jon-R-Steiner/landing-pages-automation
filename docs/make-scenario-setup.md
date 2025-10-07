@@ -5,8 +5,8 @@ This guide explains how to set up Make.com scenarios for automated landing page 
 ## Prerequisites
 
 - Make.com account (Free or paid plan)
-- API Token: `701bf0d3-70ea-4079-890f-46d15f9e3824`
-- Claude API Key: `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`
+- API Token: Your Make.com API key
+- Claude API Key: Your Anthropic API key
 - Airtable credentials already configured
 
 ## Scenario 1: New Lead → Content Generation
@@ -26,7 +26,7 @@ This guide explains how to set up Make.com scenarios for automated landing page 
    - Method: `POST`
    - Headers:
      ```
-     x-api-key: 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
+     x-api-key: YOUR_CLAUDE_API_KEY
      anthropic-version: 2023-06-01
      Content-Type: application/json
      ```
@@ -120,11 +120,11 @@ Instead of watching Airtable, you can use a webhook trigger:
 Add these to your Netlify site:
 
 ```bash
-MAKE_API_KEY=701bf0d3-70ea-4079-890f-46d15f9e3824
-CLAUDE_API_KEY=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
-AIRTABLE_API_KEY=pat3thQIxGqQt3iRp.a9512872128a4efbddc05ccb1be649e6a72f725d2df9aca10994b56446648208
-AIRTABLE_BASE_ID=appuQovLbKR3llD82
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=6LdOtuErAAAAAD1Dg7n5UqezgTewr1369I1chAAE
+MAKE_API_KEY=your_make_api_key
+CLAUDE_API_KEY=your_claude_api_key
+AIRTABLE_API_KEY=your_airtable_personal_access_token
+AIRTABLE_BASE_ID=your_airtable_base_id
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 RECAPTCHA_SECRET_KEY=(optional - for backend verification)
 NEXT_PUBLIC_GTM_CONTAINER_ID=(optional - when GTM is configured)
 ```
