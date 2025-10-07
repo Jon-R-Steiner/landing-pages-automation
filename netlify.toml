@@ -4,14 +4,14 @@
   # Build command
   command = "npm run build"
 
-  # Publish directory - should be the Next.js app root, not .next
-  publish = "apps/frontend"
+  # Publish directory - Next.js build output
+  publish = ".next"
 
   # Functions directory
-  functions = "apps/frontend/netlify/functions"
+  functions = "netlify/functions"
 
-  # Base directory for monorepo
-  base = "/"
+  # Base directory - root of Next.js app
+  base = "apps/frontend"
 
 [build.environment]
   # Node version
