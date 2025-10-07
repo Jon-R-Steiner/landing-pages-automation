@@ -1,4 +1,6 @@
 {
+  "/api/generate-content/route": "app/api/generate-content/route.js",
+  "/api/submit-lead/route": "app/api/submit-lead/route.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
   "/[city]/[slug]/page": "app/[city]/[slug]/page.js",
