@@ -1,10 +1,14 @@
-# Netlify Configuration - Next.js 15.5 with App Router (native runtime)
+# Netlify Configuration - Next.js 15.5 with App Router
 
 [build]
   command = "npm run build"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # Headers for security and performance
 [[headers]]
