@@ -1,0 +1,449 @@
+# Phase 1 Session Starter Configuration
+# Landing Pages Automation - Dev-Agent Autonomous Execution
+#
+# Purpose: This configuration file initializes Claude Code / BMAD Orchestrator
+# for autonomous Phase 1 execution (30-hour build) with pre-configured context,
+# credentials, validation gates, and checkpoint strategy.
+#
+# Version: 1.0
+# Created: 2025-10-07
+# For Use By: dev-agent (James - Full Stack Developer)
+
+# ============================================================================
+# CONTEXT FILES
+# ============================================================================
+# Defines which files dev-agent loads at session start and during execution.
+# Based on Story 1.2.1 (Identify Phase 1 Context Files)
+
+context_files:
+  # Always Load: Critical context loaded at every session start
+  always_load:
+    - file: "docs/architecture.md"
+      purpose: "Technical design, component specs, API definitions"
+      estimated_tokens: 46427
+      priority: "critical"
+      sections_referenced:
+        - "High Level Architecture"
+        - "Tech Stack"
+        - "Monorepo Layout"
+        - "Frontend Implementation"
+        - "Backend Implementation"
+        - "Data Models"
+
+    - file: "docs/prd.md"
+      purpose: "Product requirements, user stories, acceptance criteria"
+      estimated_tokens: 14870
+      priority: "critical"
+      sections_referenced:
+        - "User Stories"
+        - "Acceptance Criteria"
+        - "Success Metrics"
+        - "Feature Requirements"
+
+    - file: "docs/mcp-integration-patterns.md"
+      purpose: "Third-party integration patterns (Airtable, Make.com, Netlify)"
+      estimated_tokens: 9115
+      priority: "critical"
+      sections_referenced:
+        - "Airtable Integration Patterns"
+        - "Make.com Integration Patterns"
+        - "Netlify Integration Patterns"
+        - "Environment Variables Reference"
+        - "Fallback Strategies"
+
+  # Load on Demand: Reference files loaded when specifically needed
+  load_on_demand:
+    - file: ".bmad-core/templates/living-doc-tmpl.yaml"
+      purpose: "Living documentation structure template"
+      estimated_tokens: 2333
+      trigger: "When creating stage living documentation"
+
+    - file: ".bmad-core/data/technical-preferences.yaml"
+      purpose: "Technology stack preferences and conventions"
+      estimated_tokens: 500
+      trigger: "When making technology or convention decisions"
+      status: "Will be created by dev-agent if needed"
+
+  # Living Documentation: Progressive context loaded as stages complete
+  # Active Tier (current + last 3 versions) loaded automatically
+  # Archive Tier (historical) loaded on keyword trigger only
+  living_docs:
+    strategy: "two_tier"
+    active_tier_policy: "current_plus_last_3_versions"
+    archive_tier_policy: "keyword_trigger_only"
+
+    stage_files:
+      - file: "docs/living-docs/stage-1-setup.yaml"
+        stage: 1
+        purpose: "Repository initialization, dependency configuration"
+        estimated_tokens: "5000-8000"
+        load_when: "Stage 1 in progress or complete"
+
+      - file: "docs/living-docs/stage-2-components.yaml"
+        stage: 2
+        purpose: "Component implementation, design system integration"
+        estimated_tokens: "8000-12000"
+        load_when: "Stage 2 in progress or complete"
+
+      - file: "docs/living-docs/stage-3-forms.yaml"
+        stage: 3
+        purpose: "Form validation, reCAPTCHA, error handling"
+        estimated_tokens: "6000-10000"
+        load_when: "Stage 3 in progress or complete"
+
+      - file: "docs/living-docs/stage-4-airtable.yaml"
+        stage: 4
+        purpose: "Airtable MCP config, CRUD operations, duplicate detection"
+        estimated_tokens: "7000-11000"
+        load_when: "Stage 4 in progress or complete"
+
+      - file: "docs/living-docs/stage-5-make.yaml"
+        stage: 5
+        purpose: "Make.com scenarios, content generation, webhooks"
+        estimated_tokens: "7000-11000"
+        load_when: "Stage 5 in progress or complete"
+
+      - file: "docs/living-docs/stage-6-deployment.yaml"
+        stage: 6
+        purpose: "Netlify deployment, E2E tests, performance validation"
+        estimated_tokens: "8000-12000"
+        load_when: "Stage 6 in progress or complete"
+
+  # Token Budget Management
+  token_budget:
+    total_critical_context: 70412  # Always Load files
+    total_reference_context: 2833  # Load on Demand files
+    total_living_docs_active: "41000-64000"  # Progressive as stages complete
+    maximum_context: 137245  # All Active tier loaded
+    warning_threshold: 0.75  # 75% of available context
+    action_on_threshold: "Trigger Archive tier cleanup"
+
+# ============================================================================
+# CREDENTIALS
+# ============================================================================
+# Environment variable references for secure credential management.
+# NO HARDCODED SECRETS - All values are environment variable references.
+# Based on Story 1.1.0 (MCP Setup) and docs/phase-0-env-vars.md
+
+credentials:
+  # Phase 0 Credentials (Research)
+  tavily:
+    api_key: "${TAVILY_API_KEY}"
+    purpose: "Web search and research via Tavily MCP"
+    required_for: "Phase 0 research stories"
+    status: "configured"
+
+  # Phase 1 Credentials (Implementation)
+  airtable:
+    api_key: "${AIRTABLE_API_KEY}"
+    base_id: "${AIRTABLE_BASE_ID}"
+    purpose: "Data storage and content management"
+    required_for: "Stage 4 (Airtable Integration)"
+    authentication_type: "Personal Access Token"
+    status: "to_be_configured"
+
+  make_com:
+    api_key: "${MAKE_API_KEY}"
+    mcp_token_url: "${MAKE_MCP_TOKEN_URL}"
+    purpose: "Workflow automation and orchestration"
+    required_for: "Stage 5 (Make.com Automation)"
+    authentication_type: "MCP Token URL"
+    status: "to_be_configured"
+
+  netlify:
+    auth_token: "${NETLIFY_AUTH_TOKEN}"
+    site_id: "${NETLIFY_SITE_ID}"
+    build_hook_url: "${NETLIFY_BUILD_HOOK_URL}"
+    purpose: "Deployment and serverless functions"
+    required_for: "Stage 6 (Deployment & Testing)"
+    authentication_type: "Personal Access Token"
+    status: "to_be_configured"
+
+  claude_api:
+    api_key: "${CLAUDE_API_KEY}"
+    model: "claude-sonnet-4-5"
+    purpose: "AI content generation via Make.com"
+    required_for: "Stage 5 (Make.com Automation - Content Generation)"
+    status: "to_be_configured"
+
+  recaptcha:
+    site_key: "${RECAPTCHA_SITE_KEY}"
+    secret_key: "${RECAPTCHA_SECRET_KEY}"
+    purpose: "Bot protection and spam prevention"
+    required_for: "Stage 3 (Multi-Step Form)"
+    authentication_type: "Site Key (public) + Secret Key (private)"
+    status: "to_be_configured"
+
+  google_tag_manager:
+    container_id: "${GTM_CONTAINER_ID}"
+    purpose: "Analytics and tracking management"
+    required_for: "Stage 2 (Frontend Foundation)"
+    authentication_type: "Container ID (safe to commit)"
+    status: "to_be_configured"
+
+  # Security Validation
+  security:
+    hardcoded_secrets_allowed: false
+    environment_variables_only: true
+    secrets_in_version_control: false
+    validation_command: "grep -r 'api_key\\|token\\|secret' --exclude='*.yaml' --exclude='*.md'"
+
+# ============================================================================
+# CHECKPOINT TRIGGERS
+# ============================================================================
+# Defines when dev-agent saves state for recovery and resumption.
+# Checkpoint strategy balances state preservation with performance.
+
+checkpoint_triggers:
+  # Time-Based Checkpoints: Regular state snapshots during long operations
+  time_based:
+    enabled: true
+    interval_minutes: 30
+    description: "Save state every 30 minutes to prevent context loss"
+    checkpoint_includes:
+      - "Current stage progress"
+      - "Completed tasks"
+      - "Living documentation updates"
+      - "Error log"
+      - "Token usage metrics"
+
+  # Error-Triggered Checkpoints: Save state before failure for recovery
+  error_triggered:
+    enabled: true
+    triggers:
+      - type: "exception"
+        description: "Unhandled exception or critical error"
+        action: "Save full state including stack trace"
+
+      - type: "validation_failure"
+        description: "Stage exit criteria not met"
+        action: "Save state with failed validation details"
+
+      - type: "test_failure"
+        description: "Unit tests or E2E tests fail"
+        action: "Save state with test failure logs"
+
+      - type: "build_failure"
+        description: "TypeScript compilation or build fails"
+        action: "Save state with compilation errors"
+
+    checkpoint_includes:
+      - "Error message and stack trace"
+      - "Current file being edited"
+      - "Last successful checkpoint timestamp"
+      - "Recovery instructions"
+
+  # Stage-Completion Checkpoints: Checkpoint after each build stage
+  stage_completion:
+    enabled: true
+    trigger_on: "stage_exit_criteria_met"
+    stages:
+      - stage: 1
+        name: "Project Setup"
+        checkpoint_after: "All Stage 1 exit criteria validated"
+
+      - stage: 2
+        name: "Frontend Foundation"
+        checkpoint_after: "All Stage 2 exit criteria validated"
+
+      - stage: 3
+        name: "Multi-Step Form"
+        checkpoint_after: "All Stage 3 exit criteria validated"
+
+      - stage: 4
+        name: "Airtable Integration"
+        checkpoint_after: "All Stage 4 exit criteria validated"
+
+      - stage: 5
+        name: "Make.com Automation"
+        checkpoint_after: "All Stage 5 exit criteria validated"
+
+      - stage: 6
+        name: "Deployment & Testing"
+        checkpoint_after: "All Stage 6 exit criteria validated (Phase 1 Complete)"
+
+    checkpoint_includes:
+      - "Stage completion timestamp"
+      - "Exit criteria validation results"
+      - "Living documentation update"
+      - "Git commit hash"
+      - "Next stage entry criteria status"
+
+  # Checkpoint Storage
+  storage:
+    location: "docs/checkpoints/"
+    format: "YAML"
+    naming: "checkpoint-stage-{stage}-{timestamp}.yaml"
+    retention: "Keep all checkpoints until Phase 1 complete"
+    cleanup: "Archive to .gitignore'd directory after Phase 1"
+
+# ============================================================================
+# WORKFLOW REFERENCE
+# ============================================================================
+# Points to Phase 1 build stage definitions for BMAD Orchestrator management.
+# Based on Story 1.2.2 (Document Phase 1 Build Stage Definitions)
+
+workflow_reference:
+  document: "docs/phase-1-build-stages.md"
+  format: "BMAD workflow format"
+  stages: 6
+  estimated_duration: "28-34 hours"
+
+  # Stage Progression Logic
+  progression:
+    type: "sequential"
+    rule: "Stage N cannot start until Stage N-1 exit criteria met"
+    validation_gates: "All exit criteria must pass before proceeding"
+    parallel_execution: false
+    skip_stages: false
+
+  # Stage Definitions Reference
+  stages:
+    - number: 1
+      name: "Project Setup"
+      duration: "3-4 hours"
+      entry_criteria_file: "docs/phase-1-build-stages.md#stage-1-entry-criteria"
+      exit_criteria_file: "docs/phase-1-build-stages.md#stage-1-exit-criteria"
+      deliverables_file: "docs/phase-1-build-stages.md#stage-1-primary-deliverables"
+      success_metrics_file: "docs/phase-1-build-stages.md#stage-1-success-metrics"
+
+    - number: 2
+      name: "Frontend Foundation"
+      duration: "5-6 hours"
+      entry_criteria_file: "docs/phase-1-build-stages.md#stage-2-entry-criteria"
+      exit_criteria_file: "docs/phase-1-build-stages.md#stage-2-exit-criteria"
+      deliverables_file: "docs/phase-1-build-stages.md#stage-2-primary-deliverables"
+      success_metrics_file: "docs/phase-1-build-stages.md#stage-2-success-metrics"
+
+    - number: 3
+      name: "Multi-Step Form"
+      duration: "6-7 hours"
+      entry_criteria_file: "docs/phase-1-build-stages.md#stage-3-entry-criteria"
+      exit_criteria_file: "docs/phase-1-build-stages.md#stage-3-exit-criteria"
+      deliverables_file: "docs/phase-1-build-stages.md#stage-3-primary-deliverables"
+      success_metrics_file: "docs/phase-1-build-stages.md#stage-3-success-metrics"
+
+    - number: 4
+      name: "Airtable Integration"
+      duration: "5-6 hours"
+      entry_criteria_file: "docs/phase-1-build-stages.md#stage-4-entry-criteria"
+      exit_criteria_file: "docs/phase-1-build-stages.md#stage-4-exit-criteria"
+      deliverables_file: "docs/phase-1-build-stages.md#stage-4-primary-deliverables"
+      success_metrics_file: "docs/phase-1-build-stages.md#stage-4-success-metrics"
+
+    - number: 5
+      name: "Make.com Automation"
+      duration: "4-5 hours"
+      entry_criteria_file: "docs/phase-1-build-stages.md#stage-5-entry-criteria"
+      exit_criteria_file: "docs/phase-1-build-stages.md#stage-5-exit-criteria"
+      deliverables_file: "docs/phase-1-build-stages.md#stage-5-primary-deliverables"
+      success_metrics_file: "docs/phase-1-build-stages.md#stage-5-success-metrics"
+
+    - number: 6
+      name: "Deployment & Testing"
+      duration: "5-6 hours"
+      entry_criteria_file: "docs/phase-1-build-stages.md#stage-6-entry-criteria"
+      exit_criteria_file: "docs/phase-1-build-stages.md#stage-6-exit-criteria"
+      deliverables_file: "docs/phase-1-build-stages.md#stage-6-primary-deliverables"
+      success_metrics_file: "docs/phase-1-build-stages.md#stage-6-success-metrics"
+
+  # Validation Gates
+  validation_gates:
+    pre_stage:
+      - "Verify all entry criteria met"
+      - "Confirm previous stage exit criteria passed"
+      - "Check required environment variables configured"
+
+    during_stage:
+      - "Run tests continuously (Vitest unit tests)"
+      - "Validate TypeScript compilation after file changes"
+      - "Check for console errors in development mode"
+      - "Verify component rendering in browser"
+
+    post_stage:
+      - "Run all validation commands from Success Metrics"
+      - "Execute stage-specific tests (unit + integration)"
+      - "Create living documentation update"
+      - "Commit deliverables to Git"
+      - "Update Phase 1 validation log"
+      - "Mark stage complete ONLY if all exit criteria met"
+
+# ============================================================================
+# SESSION INITIALIZATION
+# ============================================================================
+# Configuration for BMAD Orchestrator to initialize dev-agent session
+
+session:
+  agent: "dev"
+  persona: "James - Full Stack Developer"
+  model: "claude-sonnet-4-5-20250929"
+  phase: "Phase 1"
+  project: "Landing Pages Automation"
+
+  initialization_sequence:
+    - step: 1
+      action: "Load Always Load context files"
+      files: ["docs/architecture.md", "docs/prd.md", "docs/mcp-integration-patterns.md"]
+
+    - step: 2
+      action: "Verify environment variables configured"
+      required: ["TAVILY_API_KEY", "AIRTABLE_API_KEY", "NETLIFY_AUTH_TOKEN"]
+
+    - step: 3
+      action: "Load Phase 1 build stage definitions"
+      file: "docs/phase-1-build-stages.md"
+
+    - step: 4
+      action: "Determine current stage or resume from checkpoint"
+      logic: "If checkpoint exists, resume from last completed stage + 1, else start Stage 1"
+
+    - step: 5
+      action: "Load living documentation for current and previous stages"
+      policy: "Active tier only (current + last 3 versions)"
+
+    - step: 6
+      action: "Display session status and begin autonomous execution"
+      output: "Stage number, entry criteria status, estimated duration"
+
+# ============================================================================
+# PHASE 1 COMPLETION CRITERIA
+# ============================================================================
+# Defines when Phase 1 is considered complete
+
+completion_criteria:
+  all_stages_complete: true
+  exit_criteria_validated: "All 6 stages"
+  tests_passing:
+    - "Unit tests (Vitest)"
+    - "Integration tests (Vitest)"
+    - "E2E tests (Playwright)"
+  performance_validated:
+    - "Core Web Vitals: LCP <2.5s, INP <200ms, CLS <0.1"
+    - "Lighthouse scores ≥90 (Performance, Accessibility, SEO)"
+  deployment_validated:
+    - "Production site deployed to Netlify"
+    - "DNS configured (if custom domain)"
+    - "SSL certificate active"
+  pipeline_operational:
+    - "Form submission → Airtable"
+    - "Airtable status=Pending → Make.com content generation"
+    - "Airtable status=Approved → Netlify deployment"
+  documentation_complete:
+    - "Living documentation for all 6 stages"
+    - "Phase 1 validation log updated"
+  ready_for_review: true
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+metadata:
+  version: "1.0"
+  created_date: "2025-10-07"
+  created_by: "dev-agent (James)"
+  last_modified: "2025-10-07"
+  compatible_with: "BMAD Orchestrator 1.x"
+  phase: "Phase 0 (Session Configuration)"
+  next_phase: "Phase 1 (Autonomous Build)"
+  estimated_phase_1_duration: "28-34 hours"
+  validation_status: "Ready for Phase 1"
