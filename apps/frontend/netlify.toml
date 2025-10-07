@@ -1,7 +1,9 @@
 # Netlify Configuration - placed in Next.js app root for auto-detection
 
 [build]
-  command = "rm -rf node_modules && ln -sf ../../node_modules . && npm run build"
+  base = ""
+  command = "npm run build"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
