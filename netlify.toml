@@ -1,8 +1,8 @@
 # Netlify Configuration for Landing Pages Automation
 
 [build]
-  # Build command
-  command = "npm run build"
+  # Build command - install deps at root first, then build
+  command = "cd ../.. && npm install && npm run build"
 
   # Publish directory - Next.js build output
   publish = ".next"
@@ -49,10 +49,10 @@
 
 # Environment-specific settings
 [context.production]
-  command = "npm run build"
+  command = "cd ../.. && npm install && npm run build"
 
 [context.deploy-preview]
-  command = "npm run build"
+  command = "cd ../.. && npm install && npm run build"
 
 [context.branch-deploy]
-  command = "npm run build"
+  command = "cd ../.. && npm install && npm run build"
