@@ -4,8 +4,8 @@
   # Build command
   command = "npm run build"
 
-  # Publish directory (Next.js output)
-  publish = "apps/frontend/.next"
+  # Publish directory - should be the Next.js app root, not .next
+  publish = "apps/frontend"
 
   # Functions directory
   functions = "apps/frontend/netlify/functions"
@@ -16,16 +16,6 @@
 [build.environment]
   # Node version
   NODE_VERSION = "20"
-
-  # Enable Next.js standalone output
-  NEXT_PRIVATE_STANDALONE = "true"
-
-# Redirect rules for Next.js App Router
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
 
 # Headers for security and performance
 [[headers]]
@@ -38,7 +28,7 @@
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
 [[headers]]
-  for = "/static/*"
+  for = "/_next/static/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
