@@ -406,6 +406,316 @@ session:
       output: "Stage number, entry criteria status, estimated duration"
 
 # ============================================================================
+# SUCCESS CRITERIA
+# ============================================================================
+# Automated validation gates for all 6 build stages.
+# Each criterion includes: validation command, expected output, failure handling.
+# Based on exit criteria from docs/phase-1-build-stages.md (Story 1.2.2)
+
+success_criteria:
+  # Validation Command Format
+  command_format:
+    structure: "command: <executable>, expected: <exit_code|output_pattern>, on_failure: <retry|checkpoint|abort>"
+    failure_handling_options:
+      retry: "Transient failures (network, API rate limits) - retry 3x with backoff"
+      checkpoint: "Recoverable failures (test failures, validation errors) - save state for debugging"
+      abort: "Critical failures (compilation errors, missing dependencies) - stop execution"
+
+  # Stage 1: Project Setup
+  stage_1_project_setup:
+    stage_number: 1
+    stage_name: "Project Setup"
+    validation_gates:
+      - criterion: "Monorepo npm workspaces configured"
+        command: "npm install"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "All workspace packages install successfully"
+
+      - criterion: "packages/shared types created"
+        command: "test -d packages/shared/src/types"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "Shared types directory exists"
+
+      - criterion: "lib/placeholders.ts implemented with 8 categories"
+        command: "grep -c 'export function get.*Placeholder' apps/frontend/lib/placeholders.ts"
+        expected: "output: 8"
+        on_failure: "checkpoint"
+        description: "Placeholder library has 8 image category functions"
+
+      - criterion: "Configuration files created"
+        command: "test -f apps/frontend/next.config.js && test -f apps/frontend/tailwind.config.js && test -f apps/frontend/middleware.ts"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "next.config.js, tailwind.config.js, middleware.ts exist"
+
+      - criterion: "TypeScript compiles without errors"
+        command: "npx tsc --noEmit"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "TypeScript compilation passes with 0 errors"
+
+      - criterion: "Next.js dev server starts"
+        command: "cd apps/frontend && timeout 10 npm run dev"
+        expected: "output_contains: 'ready'"
+        on_failure: "checkpoint"
+        description: "Next.js dev server launches successfully"
+
+  # Stage 2: Frontend Foundation
+  stage_2_frontend_foundation:
+    stage_number: 2
+    stage_name: "Frontend Foundation"
+    validation_gates:
+      - criterion: "App Router structure created"
+        command: "test -d apps/frontend/app/\\[slug\\] && test -d apps/frontend/app/\\[location\\]/\\[slug\\]"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "Both [slug] and [location]/[slug] route directories exist"
+
+      - criterion: "Root layout with GTM implemented"
+        command: "grep -q 'GTM' apps/frontend/app/layout.tsx"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "GTM script present in root layout"
+
+      - criterion: "globals.css with Tailwind configured"
+        command: "grep -q '@tailwind' apps/frontend/styles/globals.css"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "Tailwind directives present in globals.css"
+
+      - criterion: "Next.js builds successfully"
+        command: "cd apps/frontend && npm run build"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "Next.js production build completes"
+
+      - criterion: "Placeholder images loading correctly"
+        command: "grep -q 'getWalkInShowerPlaceholder\\|getFullBathroomRemodelPlaceholder' apps/frontend/components/LandingPageHero.tsx"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "Placeholder library used in hero component"
+
+      - criterion: "TypeScript compilation passes"
+        command: "npx tsc --noEmit"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "TypeScript compiles with 0 errors"
+
+  # Stage 3: Multi-Step Form
+  stage_3_multi_step_form:
+    stage_number: 3
+    stage_name: "Multi-Step Form"
+    validation_gates:
+      - criterion: "MultiStepForm orchestrator component created"
+        command: "test -f apps/frontend/components/MultiStepForm/MultiStepForm.tsx"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "MultiStepForm.tsx exists"
+
+      - criterion: "Step components functional"
+        command: "test -f apps/frontend/components/MultiStepForm/Step1BasicInfo.tsx && test -f apps/frontend/components/MultiStepForm/Step2ProjectDetails.tsx && test -f apps/frontend/components/MultiStepForm/Step3TCPAConsent.tsx"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "All 3 step components exist"
+
+      - criterion: "FormContext provider working"
+        command: "test -f apps/frontend/contexts/FormContext.tsx"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "FormContext.tsx exists"
+
+      - criterion: "MarketingContext provider working"
+        command: "test -f apps/frontend/contexts/MarketingContext.tsx"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "MarketingContext.tsx exists"
+
+      - criterion: "Zod validation schemas in packages/shared"
+        command: "grep -q 'Step1Schema\\|Step2Schema\\|Step3Schema' packages/shared/src/validation/form-schemas.ts"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "Form schemas exported from shared package"
+
+      - criterion: "reCAPTCHA v3 integrated"
+        command: "grep -q 'react-google-recaptcha-v3' apps/frontend/package.json"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "reCAPTCHA v3 dependency installed"
+
+      - criterion: "Form submission flow tested"
+        command: "npm test -- --run --reporter=json | jq -r '.testResults[] | select(.name | contains(\"form\")) | .status'"
+        expected: "output: passed"
+        on_failure: "checkpoint"
+        description: "Form component tests pass"
+
+      - criterion: "TypeScript compilation passes"
+        command: "npx tsc --noEmit"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "TypeScript compiles with 0 errors"
+
+  # Stage 4: Airtable Integration
+  stage_4_airtable_integration:
+    stage_number: 4
+    stage_name: "Airtable Integration"
+    validation_gates:
+      - criterion: "Netlify Functions deployed"
+        command: "test -f apps/frontend/app/api/submit-form/route.ts && test -f apps/frontend/app/api/validate-recaptcha/route.ts && test -f apps/frontend/app/api/webhook-make-com/route.ts"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "All 3 API route files exist"
+
+      - criterion: "AirtableService with CRUD operations functional"
+        command: "test -f apps/frontend/services/AirtableService.ts"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "AirtableService.ts exists"
+
+      - criterion: "RecaptchaService with score validation working"
+        command: "test -f apps/frontend/services/RecaptchaService.ts"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "RecaptchaService.ts exists"
+
+      - criterion: "DuplicateDetectionService (5-min window) tested"
+        command: "test -f apps/frontend/services/DuplicateDetectionService.ts"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "DuplicateDetectionService.ts exists"
+
+      - criterion: "Form submissions successfully writing to Airtable"
+        command: "npm test -- --run --reporter=json | jq -r '.testResults[] | select(.name | contains(\"airtable\")) | .status'"
+        expected: "output: passed"
+        on_failure: "checkpoint"
+        description: "Airtable integration tests pass"
+
+      - criterion: "Environment variables configured"
+        command: "test -n \"$AIRTABLE_API_KEY\" && test -n \"$AIRTABLE_BASE_ID\""
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "AIRTABLE_API_KEY and AIRTABLE_BASE_ID are set"
+
+      - criterion: "TypeScript compilation passes"
+        command: "npx tsc --noEmit"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "TypeScript compiles with 0 errors"
+
+  # Stage 5: Make.com Automation
+  stage_5_make_com_automation:
+    stage_number: 5
+    stage_name: "Make.com Automation"
+    validation_gates:
+      - criterion: "Make.com Scenario 1 (content generation) configured"
+        command: "curl -s -o /dev/null -w '%{http_code}' https://hook.us1.make.com/... (webhook URL TBD)"
+        expected: "output: 200"
+        on_failure: "checkpoint"
+        description: "Make.com Scenario 1 webhook accessible (manual validation required)"
+
+      - criterion: "Make.com Scenario 2 (deployment trigger) configured"
+        command: "curl -s -o /dev/null -w '%{http_code}' https://hook.us1.make.com/... (webhook URL TBD)"
+        expected: "output: 200"
+        on_failure: "checkpoint"
+        description: "Make.com Scenario 2 webhook accessible (manual validation required)"
+
+      - criterion: "Claude API integration functional"
+        command: "test -n \"$CLAUDE_API_KEY\""
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "CLAUDE_API_KEY environment variable is set"
+
+      - criterion: "Netlify build hook configured"
+        command: "test -n \"$NETLIFY_BUILD_HOOK_URL\""
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "NETLIFY_BUILD_HOOK_URL environment variable is set"
+
+      - criterion: "PMax asset generation documented"
+        command: "test -f apps/frontend/lib/pmax.ts"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "PMax utility file exists"
+
+      - criterion: "Manual validation: Test Make.com Scenario 1"
+        command: "echo 'Manual: Create Airtable record with status=Pending, wait 2 min, verify status=Generated'"
+        expected: "manual_validation_required"
+        on_failure: "checkpoint"
+        description: "Manual test required for Make.com content generation"
+
+      - criterion: "Manual validation: Test Make.com Scenario 2"
+        command: "echo 'Manual: Change Airtable status to Approved, wait 2 min, verify Netlify build triggered'"
+        expected: "manual_validation_required"
+        on_failure: "checkpoint"
+        description: "Manual test required for Make.com deployment trigger"
+
+  # Stage 6: Deployment & Testing
+  stage_6_deployment_testing:
+    stage_number: 6
+    stage_name: "Deployment & Testing"
+    validation_gates:
+      - criterion: "Netlify production deployment successful"
+        command: "curl -s -o /dev/null -w '%{http_code}' https://your-site.netlify.app"
+        expected: "output: 200"
+        on_failure: "retry"
+        description: "Production site returns HTTP 200"
+
+      - criterion: "DNS/domain configured"
+        command: "nslookup your-custom-domain.com | grep -q 'netlify'"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "DNS resolves to Netlify (if custom domain used)"
+
+      - criterion: "Playwright E2E tests pass"
+        command: "npx playwright test"
+        expected: "exit_code: 0"
+        on_failure: "checkpoint"
+        description: "All E2E tests pass (form submission, validation, thank-you page)"
+
+      - criterion: "Core Web Vitals validated - LCP"
+        command: "npx lighthouse https://your-site.netlify.app --only-categories=performance --output=json | jq '.audits[\"largest-contentful-paint\"].numericValue'"
+        expected: "output_less_than: 2500"
+        on_failure: "checkpoint"
+        description: "Largest Contentful Paint < 2.5s"
+
+      - criterion: "Core Web Vitals validated - CLS"
+        command: "npx lighthouse https://your-site.netlify.app --only-categories=performance --output=json | jq '.audits[\"cumulative-layout-shift\"].numericValue'"
+        expected: "output_less_than: 0.1"
+        on_failure: "checkpoint"
+        description: "Cumulative Layout Shift < 0.1"
+
+      - criterion: "Lighthouse Performance score ≥90"
+        command: "npx lighthouse https://your-site.netlify.app --only-categories=performance --output=json | jq '.categories.performance.score * 100'"
+        expected: "output_greater_than: 90"
+        on_failure: "checkpoint"
+        description: "Lighthouse Performance score ≥ 90"
+
+      - criterion: "Lighthouse Accessibility score ≥90"
+        command: "npx lighthouse https://your-site.netlify.app --only-categories=accessibility --output=json | jq '.categories.accessibility.score * 100'"
+        expected: "output_greater_than: 90"
+        on_failure: "checkpoint"
+        description: "Lighthouse Accessibility score ≥ 90"
+
+      - criterion: "Lighthouse SEO score ≥90"
+        command: "npx lighthouse https://your-site.netlify.app --only-categories=seo --output=json | jq '.categories.seo.score * 100'"
+        expected: "output_greater_than: 90"
+        on_failure: "checkpoint"
+        description: "Lighthouse SEO score ≥ 90"
+
+      - criterion: "Environment variables configured in Netlify"
+        command: "netlify env:list | grep -q 'AIRTABLE_API_KEY\\|RECAPTCHA_SECRET_KEY'"
+        expected: "exit_code: 0"
+        on_failure: "abort"
+        description: "Required environment variables set in Netlify dashboard"
+
+      - criterion: "SSL certificate active"
+        command: "curl -s -I https://your-site.netlify.app | grep -q 'HTTP/2 200'"
+        expected: "exit_code: 0"
+        on_failure: "retry"
+        description: "HTTPS working with valid SSL certificate"
+
+# ============================================================================
 # PHASE 1 COMPLETION CRITERIA
 # ============================================================================
 # Defines when Phase 1 is considered complete
@@ -438,7 +748,7 @@ completion_criteria:
 # ============================================================================
 
 metadata:
-  version: "1.0"
+  version: "1.1"
   created_date: "2025-10-07"
   created_by: "dev-agent (James)"
   last_modified: "2025-10-07"
