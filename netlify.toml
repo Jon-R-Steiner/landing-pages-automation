@@ -1,8 +1,7 @@
-# Netlify Configuration - Next.js 15.5 with App Router
+# Netlify Configuration - Next.js 15.5 with App Router (flattened structure)
 
 [build]
-  base = "apps/frontend"
-  command = "npm install && npm run build"
+  command = "npm run build"
   publish = ".next"
 
 [build.environment]
