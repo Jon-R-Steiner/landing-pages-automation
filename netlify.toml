@@ -14,9 +14,6 @@
   # Node version
   NODE_VERSION = "20"
 
-  # Tell Next.js plugin where the app is
-  NEXT_USE_NETLIFY_EDGE = "false"
-
 # Headers for security and performance
 [[headers]]
   for = "/*"
@@ -42,14 +39,6 @@
 
   # Directory for functions (must match above)
   directory = "apps/frontend/netlify/functions"
-
-# Disable Next.js plugin - handle manually
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-  [plugins.inputs]
-  # Point to Next.js app root
-  distDir = "apps/frontend"
 
 # Development settings
 [dev]
