@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Read(//c/Users/JonSteiner/.claude/**)",
+      "Read(//c/Users/JonSteiner/**)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "WebSearch",
+      "mcp__playwright__browser_navigate",
+      "Bash(tree:*)",
+      "Bash(md-tree:*)",
+      "Bash(npm install:*)",
+      "SlashCommand(/BMad:agents:po:*)",
+      "Bash(test:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
