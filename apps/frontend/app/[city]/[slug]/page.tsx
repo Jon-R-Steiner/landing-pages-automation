@@ -6,7 +6,7 @@ import MultiStepForm from '@/components/MultiStepForm';
 
 interface PageProps {
   params: Promise<{
-    location: string;
+    city: string;
     slug: string;
   }>;
 }
@@ -24,7 +24,8 @@ const validPageTypes: PageType[] = [
 ];
 
 export default async function LocationLandingPage({ params }: PageProps) {
-  const { location, slug } = await params;
+  const { city, slug } = await params;
+  const location = city; // Use city param as location
 
   // Validate slug matches our page types
   if (!validPageTypes.includes(slug as PageType)) {
