@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { PageType } from '@shared/types';
 import { getPlaceholderByCategory } from '@/lib/placeholders';
 import LandingPageHero from '@/components/LandingPageHero';
+import MultiStepForm from '@/components/MultiStepForm';
 
 interface PageProps {
   params: {
@@ -46,7 +47,13 @@ export default function LandingPage({ params }: PageProps) {
         heroImage={heroImage}
         ctaText="Get Free Quote"
       />
-      {/* Additional sections will be added in Stage 3 */}
+
+      {/* Multi-Step Form */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <MultiStepForm pageType={pageType} />
+        </div>
+      </section>
     </main>
   );
 }
