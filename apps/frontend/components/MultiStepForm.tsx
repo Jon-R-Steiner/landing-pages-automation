@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Step1BasicInfo from './form-steps/Step1BasicInfo';
 import Step2ProjectDetails from './form-steps/Step2ProjectDetails';
 import Step3TCPAConsent from './form-steps/Step3TCPAConsent';
-import type { FormData } from '@shared/types';
+import type { FormData } from '@/types';
 
 interface MultiStepFormProps {
   pageType: string;

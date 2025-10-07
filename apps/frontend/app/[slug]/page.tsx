@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { PageType } from '@shared/types';
+import { PageType } from '@/types';
 import { getPlaceholderByCategory } from '@/lib/placeholders';
 import LandingPageHero from '@/components/LandingPageHero';
 import MultiStepForm from '@/components/MultiStepForm';

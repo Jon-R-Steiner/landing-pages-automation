@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Step3Schema } from '@shared/validation/form-schemas';
-import type { FormData } from '@shared/types';
+import { Step3Schema } from '@/lib/validation';
+import type { FormData } from '@/types';
 import { z } from 'zod';
 
 interface Step3Props {
