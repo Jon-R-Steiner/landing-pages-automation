@@ -2,7 +2,7 @@
 
 [build]
   command = "rm -rf node_modules && ln -sf ../../node_modules . && npm run build"
-  # Don't set publish - let Next.js plugin handle it automatically
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
