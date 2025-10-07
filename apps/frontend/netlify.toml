@@ -2,7 +2,6 @@
 
 [build]
   command = "rm -rf node_modules && ln -sf ../../node_modules . && npm run build"
-  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
