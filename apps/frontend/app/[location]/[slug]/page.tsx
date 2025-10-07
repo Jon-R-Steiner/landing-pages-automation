@@ -5,10 +5,10 @@ import LandingPageHero from '@/components/LandingPageHero';
 import MultiStepForm from '@/components/MultiStepForm';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     location: string;
     slug: string;
-  };
+  }>;
 }
 
 // Valid page types for bathroom renovations
@@ -23,8 +23,8 @@ const validPageTypes: PageType[] = [
   'master-bathroom',
 ];
 
-export default function LocationLandingPage({ params }: PageProps) {
-  const { location, slug } = params;
+export default async function LocationLandingPage({ params }: PageProps) {
+  const { location, slug } = await params;
 
   // Validate slug matches our page types
   if (!validPageTypes.includes(slug as PageType)) {
