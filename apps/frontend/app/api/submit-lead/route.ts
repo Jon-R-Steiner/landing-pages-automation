@@ -1,7 +1,7 @@
-import type { Handler, HandlerEvent } from '@netlify/functions';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Inline schemas to avoid workspace import issues in Netlify Functions
+// Form validation schema
 const CompleteFormSchema = z.object({
   fullName: z.string().min(2),
   email: z.string().email(),
@@ -34,7 +34,7 @@ const CompleteFormSchema = z.object({
 
 type CompleteFormData = z.infer<typeof CompleteFormSchema>;
 
-// Inline Airtable service
+// Airtable service
 async function createAirtableLead(formData: CompleteFormData): Promise<string> {
   const apiKey = process.env.AIRTABLE_API_KEY;
   const baseId = process.env.AIRTABLE_BASE_ID;
@@ -85,7 +85,7 @@ async function createAirtableLead(formData: CompleteFormData): Promise<string> {
   return result.id;
 }
 
-// Inline duplicate detection
+// Duplicate detection
 async function checkDuplicate(formData: CompleteFormData): Promise<boolean> {
   const apiKey = process.env.AIRTABLE_API_KEY;
   const baseId = process.env.AIRTABLE_BASE_ID;
@@ -124,35 +124,10 @@ async function checkDuplicate(formData: CompleteFormData): Promise<boolean> {
   }
 }
 
-export const handler: Handler = async (event: HandlerEvent) => {
-  // CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
-
-  // Handle OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: '',
-    };
-  }
-
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ success: false, message: 'Method not allowed' }),
-    };
-  }
-
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Parse request body
-    const formData = JSON.parse(event.body || '{}');
+    const formData = await request.json();
 
     // Validate form data with Zod
     const validatedData = CompleteFormSchema.parse(formData);
@@ -160,14 +135,13 @@ export const handler: Handler = async (event: HandlerEvent) => {
     // Check for duplicates
     const isDuplicate = await checkDuplicate(validatedData);
     if (isDuplicate) {
-      return {
-        statusCode: 409,
-        headers,
-        body: JSON.stringify({
+      return NextResponse.json(
+        {
           success: false,
           message: 'We already have your recent submission. We will contact you shortly!',
-        }),
-      };
+        },
+        { status: 409 }
+      );
     }
 
     // Submit to Airtable
@@ -175,38 +149,47 @@ export const handler: Handler = async (event: HandlerEvent) => {
 
     console.log('Form submission successful:', submissionId);
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
+    return NextResponse.json(
+      {
         success: true,
         message: 'Thank you! We will contact you shortly.',
         submissionId,
-      }),
-    };
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error('Form submission error:', error);
 
     // Handle Zod validation errors
     if (error.name === 'ZodError') {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
+      return NextResponse.json(
+        {
           success: false,
           message: 'Validation failed',
           errors: error.errors,
-        }),
-      };
+        },
+        { status: 400 }
+      );
     }
 
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
+    return NextResponse.json(
+      {
         success: false,
         message: error.message || 'An error occurred processing your submission',
-      }),
-    };
+      },
+      { status: 500 }
+    );
   }
-};
+}
+
+// Handle OPTIONS for CORS preflight
+export async function OPTIONS(): Promise<NextResponse> {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+}

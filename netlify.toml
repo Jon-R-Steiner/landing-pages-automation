@@ -1,4 +1,4 @@
-# Netlify Configuration - placed in Next.js app root for auto-detection
+# Netlify Configuration - Next.js 15.5 with App Router
 
 [build]
   base = "apps/frontend"
@@ -7,6 +7,10 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Next.js plugin for automatic serverless function conversion
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # Headers for security and performance
 [[headers]]
@@ -22,9 +26,3 @@
   for = "/_next/static/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
-# Function settings
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-  external_node_modules = ["@anthropic-ai/sdk"]

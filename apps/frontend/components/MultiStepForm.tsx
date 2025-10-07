@@ -36,8 +36,8 @@ export default function MultiStepForm({ pageType, location }: MultiStepFormProps
 
   const handleSubmit = async () => {
     try {
-      // Submit to Netlify Function
-      const response = await fetch('/.netlify/functions/submit-lead', {
+      // Submit to Next.js API route
+      const response = await fetch('/api/submit-lead', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

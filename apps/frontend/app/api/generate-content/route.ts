@@ -1,4 +1,4 @@
-import type { Handler, HandlerEvent } from '@netlify/functions';
+import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
 interface ContentGenerationRequest {
@@ -103,81 +103,64 @@ async function triggerMakeScenario(webhookUrl: string, data: any): Promise<any> 
   return response.json();
 }
 
-export const handler: Handler = async (event: HandlerEvent) => {
-  // CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
-
-  // Handle OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: '',
-    };
-  }
-
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ success: false, message: 'Method not allowed' }),
-    };
-  }
-
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const request: ContentGenerationRequest = JSON.parse(event.body || '{}');
+    const requestData: ContentGenerationRequest = await request.json();
 
-    if (!request.pageType) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
+    if (!requestData.pageType) {
+      return NextResponse.json(
+        {
           success: false,
           message: 'pageType is required',
-        }),
-      };
+        },
+        { status: 400 }
+      );
     }
 
     // If Make.com webhook is provided, trigger it
-    if (request.useMake && request.makeWebhookUrl) {
-      const makeResponse = await triggerMakeScenario(request.makeWebhookUrl, request);
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
+    if (requestData.useMake && requestData.makeWebhookUrl) {
+      const makeResponse = await triggerMakeScenario(requestData.makeWebhookUrl, requestData);
+      return NextResponse.json(
+        {
           success: true,
           message: 'Content generation triggered via Make.com',
           makeResponse,
-        }),
-      };
+        },
+        { status: 200 }
+      );
     }
 
     // Otherwise, generate directly with Claude
-    const content = await generateWithClaude(request);
+    const content = await generateWithClaude(requestData);
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
+    return NextResponse.json(
+      {
         success: true,
         content,
-      }),
-    };
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error('Content generation error:', error);
 
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
+    return NextResponse.json(
+      {
         success: false,
         message: error.message || 'Content generation failed',
-      }),
-    };
+      },
+      { status: 500 }
+    );
   }
-};
+}
+
+// Handle OPTIONS for CORS preflight
+export async function OPTIONS(): Promise<NextResponse> {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+}
